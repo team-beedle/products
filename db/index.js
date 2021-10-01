@@ -5,11 +5,11 @@ const pool = new Pool({
   host: 'localhost',
   database: 'sdc',
   password: 'hackreactor',
-  port: 5432
-})
+  port: 5432,
+});
 
-const products = (count, page) => {
-  return {
+const products = (count, page) => (
+  {
     name: 'returns-product-list',
     text: `
     SELECT * FROM product
@@ -17,14 +17,12 @@ const products = (count, page) => {
     OFFSET (($1 - 1) * $2) ROWS
     FETCH NEXT $2 ROWS ONLY
     `,
-    values: [page, count]
+    values: [page, count],
   }
-}
+);
 
-const getProducts = (count, page) => {
-  count = count || 5;
-  page = page || 1;
-  return pool.query(products(count, page))
-};
+const getProducts = (count = 5, page = 1) => (
+  pool.query(products(count, page))
+);
 
-module.exports = {getProducts}
+module.exports = { getProducts };
