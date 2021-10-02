@@ -1,4 +1,5 @@
 const express = require('express');
+const bluebird = require('bluebird');
 const db = require('../db');
 
 const app = express();
@@ -11,10 +12,63 @@ app.get('/products', (req, res) => {
     res.sendStatus(422);
   }
   db.getProducts(count, page)
-    .then((result) => { res.json(result); })
+    .then((result) => (result.rows))
+    .then((result) => (res.json(result)))
     .catch((error) => {
-      console.log('error getting products', error);
+      console.log('getting product list', error);
       res.sendStatus(500);
+    });
+});
+
+app.get('/products/:product_id', async (req, res) => {
+  // eslint-disable-next-line camelcase
+  const { product_id } = req.params;
+  const productInfo = await db.getProduct(product_id)
+    .then((result) => (result.rows[0]))
+    .catch((error) => {
+      console.log('getting product', error);
+      res.sendStatus(500);
+    });
+
+  productInfo.features = await db.getFeatures(product_id)
+    .then((result) => (result.rows))
+    .catch((error) => {
+      console.log('getting features', error);
+      res.sendStatus(500);
+    });
+  res.json(productInfo);
+});
+
+app.get('/products/:product_id/styles', (req, res) => {
+  // eslint-disable-next-line camelcase
+  const { product_id } = req.params;
+  const productStyles = { product_id };
+
+  db.getStyles(product_id)
+    .then((styles) => {
+      productStyles.results = styles.rows;
+      return productStyles;
+    })
+    .then((pStyles) => {
+      const styles = pStyles.results;
+      Promise.all(styles.map((style) => ( //used promise.all which will resolve when all the promises in the array are resolved
+        db.getPhotos(style.style_id)
+          .then((result) => (result.rows))
+          .then((photos) => {
+            style.photos = photos;
+          })
+          .then(() => (
+            db.getSkus(style.style_id) //need to return the db query
+              .then((result) => (result.rows))
+              .then((rows) => {
+                style.skus = {}; //needed to create an empty skus object
+                rows.forEach((row) => {
+                  style.skus[row.id] = { quantity: row.quantity, size: row.size };
+                });
+              })
+          ))
+      )))
+        .then(() => (res.json(productStyles)));
     });
 });
 

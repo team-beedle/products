@@ -8,6 +8,38 @@ const pool = new Pool({
   port: 5432,
 });
 
+const features = (productId) => (
+  {
+    name: 'returns features for product',
+    text: `
+    SELECT feature, value FROM features WHERE product_id = $1
+    `,
+    values: [productId],
+  }
+);
+
+const photos = (styleId) => (
+  {
+    name: 'returns-photos',
+    text: `
+    SELECT thumbnail_url, url from photos WHERE style_id = $1
+    ORDER BY id
+    `,
+    values: [styleId],
+  }
+);
+
+const product = (id) => (
+  {
+    name: 'returns-individual-product',
+    text: `
+    SELECT * FROM product WHERE id = $1
+    ORDER BY id
+    `,
+    values: [id],
+  }
+);
+
 const products = (count, page) => (
   {
     name: 'returns-product-list',
@@ -21,8 +53,57 @@ const products = (count, page) => (
   }
 );
 
+const skus = (styleId) => (
+  {
+    name: 'returns-sku-list',
+    text: `
+    SELECT id, size, quantity  FROM skus WHERE style_id = $1
+    ORDER BY id
+    `,
+    values: [styleId],
+  }
+);
+
+const styles = (productId) => (
+  {
+    name: 'returns-styles',
+    text: `
+    SELECT style_id, name, original_price, sale_price, default_style FROM style WHERE product_id = $1
+    ORDER BY style_id
+    `,
+    values: [productId],
+  }
+);
+
+const getFeatures = (productId) => (
+  pool.query(features(productId))
+);
+
+const getPhotos = (styleId) => (
+  pool.query(photos(styleId))
+);
+
+const getProduct = (id) => (
+  pool.query(product(id))
+);
+
 const getProducts = (count = 5, page = 1) => (
   pool.query(products(count, page))
 );
 
-module.exports = { getProducts };
+const getSkus = (styleId) => (
+  pool.query(skus(styleId))
+);
+
+const getStyles = (productId) => (
+  pool.query(styles(productId))
+);
+
+module.exports = {
+  getProducts,
+  getProduct,
+  getFeatures,
+  getStyles,
+  getSkus,
+  getPhotos,
+};
