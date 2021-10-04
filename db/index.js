@@ -53,6 +53,16 @@ const products = (count, page) => (
   }
 );
 
+const related = (productId) => (
+  {
+    name: 'returns-related-times',
+    text: `
+    SELECT ARRAY_AGG(related_id) FROM related_items WHERE product_id = $1
+    `,
+    values: [productId],
+  }
+);
+
 const skus = (styleId) => (
   {
     name: 'returns-sku-list',
@@ -91,6 +101,10 @@ const getProducts = (count = 5, page = 1) => (
   pool.query(products(count, page))
 );
 
+const getRelated = (productId) => (
+  pool.query(related(productId))
+);
+
 const getSkus = (styleId) => (
   pool.query(skus(styleId))
 );
@@ -103,6 +117,7 @@ module.exports = {
   getProducts,
   getProduct,
   getFeatures,
+  getRelated,
   getStyles,
   getSkus,
   getPhotos,

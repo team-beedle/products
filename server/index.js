@@ -8,7 +8,7 @@ const PORT = 3001;
 app.get('/products', (req, res) => {
   const { page } = req.query;
   const { count } = req.query;
-  if (count > 1000) {
+  if (count > 100) {
     res.sendStatus(422);
   }
   db.getProducts(count, page)
@@ -51,17 +51,17 @@ app.get('/products/:product_id/styles', (req, res) => {
     })
     .then((pStyles) => {
       const styles = pStyles.results;
-      Promise.all(styles.map((style) => ( //used promise.all which will resolve when all the promises in the array are resolved
+      Promise.all(styles.map((style) => (
         db.getPhotos(style.style_id)
           .then((result) => (result.rows))
           .then((photos) => {
             style.photos = photos;
           })
           .then(() => (
-            db.getSkus(style.style_id) //need to return the db query
+            db.getSkus(style.style_id)
               .then((result) => (result.rows))
               .then((rows) => {
-                style.skus = {}; //needed to create an empty skus object
+                style.skus = {};
                 rows.forEach((row) => {
                   style.skus[row.id] = { quantity: row.quantity, size: row.size };
                 });
@@ -70,6 +70,15 @@ app.get('/products/:product_id/styles', (req, res) => {
       )))
         .then(() => (res.json(productStyles)));
     });
+});
+
+app.get('/products/:product_id/related', (req, res) => {
+  // eslint-disable-next-line camelcase
+  const { product_id } = req.params;
+  db.getRelated(product_id)
+    .then((result) => (result.rows[0].array_agg))
+    .then((items) => (res.json(items)))
+    .catch((error) => (console.log('related items', error)));
 });
 
 app.listen(PORT, () => {
