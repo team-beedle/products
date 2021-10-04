@@ -78,7 +78,10 @@ app.get('/products/:product_id/related', (req, res) => {
   db.getRelated(product_id)
     .then((result) => (result.rows[0].array_agg))
     .then((items) => (res.json(items)))
-    .catch((error) => (console.log('related items', error)));
+    .catch((error) => {
+      console.log('related items', error);
+      res.sendStatus(500);
+    });
 });
 
 app.listen(PORT, () => {

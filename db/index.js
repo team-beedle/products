@@ -23,7 +23,6 @@ const photos = (styleId) => (
     name: 'returns-photos',
     text: `
     SELECT thumbnail_url, url from photos WHERE style_id = $1
-    ORDER BY id
     `,
     values: [styleId],
   }
@@ -68,7 +67,6 @@ const skus = (styleId) => (
     name: 'returns-sku-list',
     text: `
     SELECT id, size, quantity  FROM skus WHERE style_id = $1
-    ORDER BY id
     `,
     values: [styleId],
   }
@@ -79,7 +77,6 @@ const styles = (productId) => (
     name: 'returns-styles',
     text: `
     SELECT style_id, name, original_price, sale_price, default_style FROM style WHERE product_id = $1
-    ORDER BY style_id
     `,
     values: [productId],
   }
