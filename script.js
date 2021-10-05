@@ -13,6 +13,6 @@ const generateRandomId = () => {
 };
 
 export default function () {
-  http.get(`http://localhost:3001/products/${generateRandomId()}/related`);
+  http.get(`http://localhost:3001/products/${generateRandomId()}/styles`);
   sleep(1);
 }
