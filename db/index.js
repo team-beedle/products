@@ -2,8 +2,8 @@ const { Pool } = require('pg');
 const password = require('../config.js');
 
 const pool = new Pool({
-  user: 'spoyla',
-  host: 'localhost',
+  user: 'ec2-user',
+  host: '3.143.246.10',
   database: 'sdc',
   password: password,
   port: 5432,
